@@ -3,6 +3,8 @@ from mysql.connector import Error
 from flask import Flask,request, jsonify
 import bcrypt
 import string
+import jwt
+import datetime
 
 try:
     # Verbindungsaufbau zur Datenbank
@@ -61,6 +63,15 @@ def saveUser(last_name, first_name, password, login_name):
     return 1
 
 app = Flask(__name__)
+secret_key = "password_manager"
+
+def create_token(username):
+    payload = {
+        "username": username,
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+    }
+    return jwt.encode(payload, secret_key, algorithm="HS256")
+    
 
 @app.route("/create-user", methods=["POST"])
 def create_user():
@@ -75,6 +86,17 @@ def create_user():
         return "Successfully Created User", 201
 
     elif is_valid_password != True: return "Check Passwords Requirements", 400
+
+@app.route("/login", methods=["POST"])
+def login_user():
+    data = request.get_json()
+    login_name = data.get("login_name")
+    password = data.get("password")
+    user = getUser(login_name)
+    Hased_password = user[0][3]
+    if check_password(Hased_password.encode('utf-8'), password):
+        return "Login Successful", 200
+    return "Login Failed", 400
 
 if __name__ == "__main__":
         app.run(debug=True)
