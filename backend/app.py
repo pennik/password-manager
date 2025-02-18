@@ -85,7 +85,7 @@ def create_user():
     
     if is_valid_password(password) and getUser(login_name) == []: 
         saveUser(last_name, first_name, password, login_name)
-        return "Successfully Created User", 201
+        return jsonify({"Successfully Created User"}), 201
 
     elif is_valid_password != True: return "Check Passwords Requirements", 400
 
@@ -98,10 +98,11 @@ def login_user():
         user = getUser(login_name)
         Hased_password = user[0][3]
         if check_password(Hased_password.encode('utf-8'), password):
-            return "Login Successful", 200
-        return "Login Failed", 400
+            token = create_token(login_name)
+            return jsonify({"message": token}), 200
+        return jsonify({"Login Failed"}), 400
     except:
-        return "Login Failed", 400
+        return jsonify({"Login Failed"}), 400
 
 if __name__ == "__main__":
         app.run(debug=True)
