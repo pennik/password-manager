@@ -1,10 +1,11 @@
 import mysql.connector
 from mysql.connector import Error
-from flask import Flask,request, jsonify
+from flask import Flask, request, jsonify
 import bcrypt
 import string
 import jwt
 import datetime
+from flask_cors import CORS
 
 try:
     # Verbindungsaufbau zur Datenbank
@@ -63,6 +64,7 @@ def saveUser(last_name, first_name, password, login_name):
     return 1
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}}) # Allows all origens to access the API
 secret_key = "password_manager"
 
 def create_token(username):
@@ -89,14 +91,17 @@ def create_user():
 
 @app.route("/login", methods=["POST"])
 def login_user():
-    data = request.get_json()
-    login_name = data.get("login_name")
-    password = data.get("password")
-    user = getUser(login_name)
-    Hased_password = user[0][3]
-    if check_password(Hased_password.encode('utf-8'), password):
-        return "Login Successful", 200
-    return "Login Failed", 400
+    try:
+        data = request.get_json()
+        login_name = data.get("login_name")
+        password = data.get("password")
+        user = getUser(login_name)
+        Hased_password = user[0][3]
+        if check_password(Hased_password.encode('utf-8'), password):
+            return "Login Successful", 200
+        return "Login Failed", 400
+    except:
+        return "Login Failed", 400
 
 if __name__ == "__main__":
         app.run(debug=True)
