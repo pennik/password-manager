@@ -1,0 +1,10 @@
+{
+    "manifest_version": 3,
+    "name": "passwordmanager",
+    "version": "1.0",
+    "description": "Passwordmanager for Websites.",
+    "permissions": [],
+    "action": {
+      "default_popup": "popup.html"
+    }
+  }
